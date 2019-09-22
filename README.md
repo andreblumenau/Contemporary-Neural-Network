@@ -2,7 +2,7 @@ Contemporary-Neural-Network
 
 This code implements a Classifier Neural Network using pure Scipy/Numpy (https://www.scipy.org/)
 
-The code uses common contemporary algorithms for studying purposes, backprapogation is done with Tensor multiplication for better performance.
+The code uses common contemporary algorithms for studying purposes, backprapogation is done with Tensor multiplication for better performance. The Iris Dataset is included for overfit testing.
 
 Featuring:
 
