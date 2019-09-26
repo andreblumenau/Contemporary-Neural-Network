@@ -167,7 +167,7 @@ class LearningAlgorithm:
 			if i == 0:
 				#   INPUT LAYER
 				last_b_gradient = [numpy.sum(x,axis=1,keepdims=True) for x in last_b_gradient]						
-				last_b_gradient = numpy.multiply(last_b_gradient,self.ann_model.summations[i])
+				last_b_gradient = last_b_gradient + numpy.multiply(last_b_gradient,self.elu_derivative(self.ann_model.summations[i]))
 				b_gradient = numpy.mean(last_b_gradient,axis=0,keepdims=True)[0]
 				
 				input_proxy = [numpy.reshape(x,(x.shape[0],1)) for x in self.ann_model.model_input]
@@ -178,7 +178,7 @@ class LearningAlgorithm:
 				w_gradient = numpy.mean(last_w_gradient,axis=0,keepdims=True)[0]			
 			elif i < self.ann_model.number_of_layers-1:
 				last_b_gradient = [numpy.sum(x,axis=1,keepdims=True) for x in last_b_gradient]			
-				last_b_gradient = numpy.multiply(last_b_gradient,self.ann_model.summations[i])
+				last_b_gradient = last_b_gradient + numpy.multiply(last_b_gradient,self.elu_derivative(self.ann_model.summations[i]))
 				b_gradient = numpy.mean(last_b_gradient,axis=0,keepdims=True)[0]
 				
 				activation_proxy = [numpy.transpose(x) for x in self.ann_model.activations[i - 1]]
@@ -189,12 +189,11 @@ class LearningAlgorithm:
 				w_gradient = numpy.mean(last_w_gradient,axis=0,keepdims=True)[0]
 				
 			else:
-				last_b_gradient = numpy.multiply(error_derivative,self.ann_model.summations[i])
+				last_b_gradient = error_derivative + numpy.multiply(error_derivative,self.ann_model.summations[i])
 				b_gradient = numpy.mean(last_b_gradient,axis=0,keepdims=True)[0]			
 			
-				error_derivative = [ numpy.transpose(x) for x  in error_derivative]
-				
-				b_gradient = numpy.zeros(self.ann_model.bias[i].shape)				
+				error_derivative = [ numpy.transpose(x) for x  in error_derivative]				
+			
 				last_w_gradient = numpy.matmul(error_derivative,self.ann_model.activations[i - 1])
 				last_w_gradient = [numpy.transpose(x) for x in last_w_gradient]						
 				w_gradient = numpy.mean(last_w_gradient,axis=0,keepdims=True)[0]
@@ -225,7 +224,7 @@ class LearningAlgorithm:
 			self.ann_model.weights[i] = self.ann_model.weights[i] - self.alpha*w_first_moment_corrected/(numpy.sqrt(w_second_moment_corrected)+self.err)
 			self.ann_model.bias[i]	  = self.ann_model.bias[i]	  - self.alpha*b_first_moment_corrected/(numpy.sqrt(b_second_moment_corrected)+self.err)	
 			
-			self.iteration_count +=1						
+		self.iteration_count +=1						
 		return
 
 def main():
@@ -284,7 +283,7 @@ def main():
 			highest_accuracy = acc
 			hst_mcc = mcc
 		
-		print("ACC = ",acc,"HST MCC,= ",hst_mcc," MCC (Virginica) = ",mcc," CE = ",ce," EPOCH = ",i)
+		print("ACC = ",acc,"HST MCC = ",hst_mcc," MCC (Virginica) = ",mcc," CE = ",ce," EPOCH = ",i)
 		
 	print("(Virginica) HIGHEST MCC = ",hst_mcc)
 	print("(Virginica) MCC = ",hst_mcc)	
